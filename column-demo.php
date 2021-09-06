@@ -41,9 +41,10 @@ function coldemo_post_column_data($column,$post_id){
         $thumbnail = get_the_post_thumbnail($post_id,array(100,100));
         echo $thumbnail;
     }elseif('wordcount' == $column){
-        $_post = get_post($post_id);
-        $content = $_post->post_content;
-        $wordn = str_word_count(strip_tags($content));
+        // $_post = get_post($post_id);
+        // $content = $_post->post_content;
+        // $wordn = str_word_count(strip_tags($content));
+        $wordn = get_post_meta( $post_id, 'wordn', true );
         echo $wordn;
     }
 }
@@ -51,12 +52,25 @@ add_action( 'manage_posts_custom_column', 'coldemo_post_column_data', 10, 2 );
 add_action( 'manage_pages_custom_column', 'coldemo_post_column_data', 10, 2 );
 
 
-function codemo_sortable_column($columns){
+function coldemo_sortable_column($columns){
     $columns['wordcount']='wordn';
     return $columns;
 }
+add_filter( 'manage_edit-post_sortable_columns', 'coldemo_sortable_column' );
 
-add_filter( 'manage_edit-post_sortable_columns', 'codemo_sortable_column' ); 
+
+// function coldemo_set_word_count(){
+//     $posts = get_posts( array(
+//         'posts_per_page' => -1,
+//         'post_type' => 'post'
+//     ) );
+//     foreach($posts as $p){
+//         $content = $p->post_content;
+//         $wordn = str_word_count(strip_tags($content));
+//         update_post_meta( $p->ID, 'wordn', $wordn );
+//     }
+// }
+// add_action( 'init', 'coldemo_set_word_count');
 
 
 
