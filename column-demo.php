@@ -91,15 +91,40 @@
     add_action( 'save_post', 'coldemo_update_wordcount_on_save_post' );
 
     function coldemo_filter() {
-        if ( isset( $_GET['post_type'] ) ) {
+        if ( isset( $_GET['post_type'] ) && $_GET['post_type'] != 'post' ) {
             return;
         }
+        $filter_value = isset( $_GET['DEMOFILTER'] ) ? $_GET['DEMOFILTER'] : '';
+        $values       = [
+            '0' => __( 'Select Status', 'column-demo' ),
+            '1' => __( 'Some Posts', 'column-demo' ),
+            '2' => __( 'Some Post++', 'column-demo' ),
+        ]
     ?>
         <select name="DEMOFILTER">
-            <option value="0">Select Status</option>
-            <option value="1">Some Posts</option>
-            <option value="2">Some Post++</option>
+            <?php
+                foreach ( $values as $key => $value ) {
+                        printf( "<option value='%s' %s>%s</option>", $key,
+                            $key == $filter_value ? "selected = selected" : '',
+                            $value
+                        );
+                    }
+                ?>
         </select>
     <?php
         }
         add_action( 'restrict_manage_posts', 'coldemo_filter' );
+
+        function coldmo_filter_data( $wpquery ) {
+            if ( !is_admin() ) {
+                return;
+            }
+            $filter_value = isset( $_GET['DEMOFILTER'] ) ? $_GET['DEMOFILTER'] : '';
+
+            if ( '1' == $filter_value ) {
+                $wpquery->set( 'post__in', [ 650, 643, 575 ] );
+            } else if ( '2' == $filter_value ) {
+                $wpquery->set( 'post__in', [ 1, 416, 472 ] );
+            }
+        }
+    add_action( 'pre_get_posts', 'coldmo_filter_data' );
