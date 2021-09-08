@@ -128,3 +128,53 @@
             }
         }
     add_action( 'pre_get_posts', 'coldmo_filter_data' );
+
+
+    function coldemo_thumbnail_filter() {
+        if ( isset( $_GET['post_type'] ) && $_GET['post_type'] != 'post' ) {
+            return;
+        }
+        $filter_value = isset( $_GET['THUMBNAIL'] ) ? $_GET['THUMBNAIL'] : '';
+        $values       = [
+            '0' => __( 'Select thumbnail', 'column-demo' ),
+            '1' => __( 'Has Thumbnail', 'column-demo' ),
+            '2' => __( 'No Thumbnail', 'column-demo' ),
+        ]
+    ?>
+        <select name="THUMBNAIL">
+            <?php
+                foreach ( $values as $key => $value ) {
+                        printf( "<option value='%s' %s>%s</option>", $key,
+                            $key == $filter_value ? "selected = selected" : '',
+                            $value
+                        );
+                    }
+                ?>
+        </select>
+    <?php
+        }
+        add_action( 'restrict_manage_posts', 'coldemo_thumbnail_filter' );
+
+        function coldmo_thumbnail_filter_data( $wpquery ) {
+            if ( !is_admin() ) {
+                return;
+            }
+            $filter_value = isset( $_GET['THUMBNAIL'] ) ? $_GET['THUMBNAIL'] : '';
+            $wpquery-> set('posts_per_page',5);
+            if ( '1' == $filter_value ) {
+                $wpquery->set( 'meta_query',array(
+                    array(
+                        'key' => '_thumbnail_id',
+                        'compare' => 'EXISTS'
+                    )
+                ) );
+            } else if ( '2' == $filter_value ) {
+                $wpquery->set( 'meta_query',array(
+                    array(
+                        'key' => '_thumbnail_id',
+                        'compare' => 'NOT EXISTS'
+                    )
+                ) );
+            }
+        }
+    add_action( 'pre_get_posts', 'coldmo_thumbnail_filter_data' );
